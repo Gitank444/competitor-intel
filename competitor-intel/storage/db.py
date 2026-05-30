@@ -51,6 +51,17 @@ def get_last_snapshot(table, competitor):
     conn.close()
     return row
 
+def get_recent_snapshots(table, competitor, limit=4):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute(
+        f"SELECT * FROM {table} WHERE competitor=? ORDER BY captured_at DESC LIMIT ?",
+        (competitor, limit)
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
+
 def save_snapshot(table, competitor, **kwargs):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()

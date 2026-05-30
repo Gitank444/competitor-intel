@@ -17,26 +17,20 @@ def collect_jobs_signals():
         print(f"Collecting jobs for {comp_name}...")
 
         try:
-            result = app.scrape_url(jobs_url, params={"formats": ["markdown"]})
-            current_jobs = result.get("markdown", "")
+            result = app.scrape_url(jobs_url, formats=["markdown"])
+            current_jobs = result.markdown or ""
 
             last = get_last_snapshot("jobs_snapshots", comp_name)
-
             changes = []
 
             if last:
-                last_jobs = last[2]
-                if last_jobs != current_jobs:
-                    changes.append("Job postings page has changed — new roles may have been added or removed")
-                    changes.append(f"Current snapshot sample: {current_jobs[:300]}")
+                if last[2] != current_jobs:
+                    changes.append("Job postings have changed")
+                    changes.append(f"Current listings sample: {current_jobs[:300]}")
             else:
-                changes.append(f"First jobs snapshot. Current listings sample: {current_jobs[:300]}")
+                changes.append(f"First jobs snapshot. Sample: {current_jobs[:300]}")
 
-            save_snapshot(
-                "jobs_snapshots",
-                comp_name,
-                jobs_raw=current_jobs
-            )
+            save_snapshot("jobs_snapshots", comp_name, jobs_raw=current_jobs)
 
             if changes:
                 all_signals.append({

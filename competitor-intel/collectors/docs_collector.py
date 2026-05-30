@@ -18,34 +18,31 @@ def collect_docs_signals():
         print(f"Collecting docs for {comp_name}...")
 
         try:
-            result = app.scrape_url(docs_url, params={"formats": ["markdown"]})
-            current_content = result.get("markdown", "")
+            result = app.scrape_url(docs_url, formats=["markdown"])
+            current_content = result.markdown or ""
 
             last = get_last_snapshot("docs_snapshots", comp_name)
-
             changes = []
 
             if last:
-                last_content = last[3]
                 diff = list(difflib.unified_diff(
-                    last_content.splitlines(),
+                    last[3].splitlines(),
                     current_content.splitlines(),
                     lineterm=""
                 ))
                 if diff:
                     added = [l for l in diff if l.startswith("+") and not l.startswith("+++")]
                     removed = [l for l in diff if l.startswith("-") and not l.startswith("---")]
-                    changes.append(f"{len(added)} lines added, {len(removed)} lines removed in docs")
-                    changes.append("Sample additions: " + " | ".join(added[:3]))
+                    changes.append(f"{len(added)} lines added, {len(removed)} lines removed")
+                    if added:
+                        changes.append("Sample new content: " + " | ".join(added[:3]))
+                # else:
+                #     changes.append(f"No changes but snapshot exists. Sample: {current_content[:300]}")
             else:
-                changes.append("First docs snapshot taken")
+                # changes.append(f"First docs snapshot. Sample: {current_content[:300]}")
+                pass
 
-            save_snapshot(
-                "docs_snapshots",
-                comp_name,
-                url=docs_url,
-                content=current_content
-            )
+            save_snapshot("docs_snapshots", comp_name, url=docs_url, content=current_content)
 
             if changes:
                 all_signals.append({

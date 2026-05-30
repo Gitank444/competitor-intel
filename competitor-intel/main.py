@@ -20,7 +20,7 @@ def run_pipeline():
     print("Analyzing signals...")
     summary = summarize_signals(all_signals)
 
-    print("Sending digest...")
+    print("Delivering digest...")
     send_to_slack(summary)
 
     print("Pipeline complete.")
