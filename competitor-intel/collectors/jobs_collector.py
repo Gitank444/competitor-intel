@@ -19,8 +19,10 @@ def collect_jobs_signals():
         try:
             result = app.scrape_url(jobs_url, formats=["markdown"])
             current_jobs = result.markdown or ""
+            print(f"{comp_name} jobs length: {len(current_jobs)}")
 
             last = get_last_snapshot("jobs_snapshots", comp_name)
+            print(f"{comp_name} previous jobs snapshot exists: {last is not None}")
             changes = []
 
             if last:
@@ -28,7 +30,10 @@ def collect_jobs_signals():
                     changes.append("Job postings have changed")
                     changes.append(f"Current listings sample: {current_jobs[:300]}")
             else:
-                changes.append(f"First jobs snapshot. Sample: {current_jobs[:300]}")
+                changes.append(f"First jobs snapshot. Sample: ({len(current_jobs)} chars")
+                
+                if current_jobs:
+                    changes.append("Sample listings: " + current_jobs[:300].replace("\n", " "))
 
             save_snapshot("jobs_snapshots", comp_name, jobs_raw=current_jobs)
 
@@ -42,4 +47,6 @@ def collect_jobs_signals():
         except Exception as e:
             print(f"Error scraping jobs for {comp_name}: {e}")
 
+    print(f"Total jobs signals: {len(all_signals)}")
+    print(f"Total docs signals: {len(all_signals)}")
     return all_signals

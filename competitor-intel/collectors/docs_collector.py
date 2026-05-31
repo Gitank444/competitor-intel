@@ -20,7 +20,8 @@ def collect_docs_signals():
         try:
             result = app.scrape_url(docs_url, formats=["markdown"])
             current_content = result.markdown or ""
-
+            print(f"{comp_name} docs length: {len(current_content)}")
+            
             last = get_last_snapshot("docs_snapshots", comp_name)
             changes = []
 
@@ -40,7 +41,10 @@ def collect_docs_signals():
                 #     changes.append(f"No changes but snapshot exists. Sample: {current_content[:300]}")
             else:
                 # changes.append(f"First docs snapshot. Sample: {current_content[:300]}")
-                pass
+                changes.append(f"First snapshot for docs. Sample: ({len(current_content)} chars) ")
+                
+                if current_content:
+                    "Sample content: " + current_content[:300].replace("\n", " ")
 
             save_snapshot("docs_snapshots", comp_name, url=docs_url, content=current_content)
 
